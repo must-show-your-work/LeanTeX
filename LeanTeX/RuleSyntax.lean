@@ -101,8 +101,9 @@ def processParamKinds (c? : Option (TSyntax ``paramKindsClause)) : CommandElabM 
     let body' ← liftMacroM <| Term.expandWhereDeclsOpt (mkOptionalNode whereClause?) body
     let ppAttr ← `(Lean.Parser.Term.attrInstance| $attrKind? latex_pp $kind)
     let attrs := attrs?.map (·.getElems) |>.getD #[] |>.push ppAttr
-    `(command| $[$doc?:docComment]? @[$attrs,*]
-                aux_def latex_pp_rule : LatexPrinter := $(TSyntax.mk body'))
+    `(command| open Lean.Elab.Command in
+                $[$doc?:docComment]? @[$attrs,*]
+                private aux_def latex_pp_rule : LatexPrinter := $(TSyntax.mk body'))
   | _ => Elab.throwUnsupportedSyntax
 where
   -- TODO: would be nice if we could use `no_error_if_unused%`
@@ -122,8 +123,9 @@ where
     let ppAttr ← `(Lean.Parser.Term.attrInstance|$attrKind? latex_pp $kind)
     let attrs := attrs?.map (·.getElems) |>.getD #[] |>.push ppAttr
     let body' ← liftMacroM <| Term.expandWhereDeclsOpt (mkOptionalNode whereClause?) body
-    `(command| $[$doc?:docComment]? @[$attrs,*]
-                aux_def latex_pp_rule : LatexPrinter := fun _ => $(TSyntax.mk body'))
+    `(command| open Lean.Elab.Command in
+                $[$doc?:docComment]? @[$attrs,*]
+                private aux_def latex_pp_rule : LatexPrinter := fun _ => $(TSyntax.mk body'))
   | _ => Elab.throwUnsupportedSyntax
 
 @[command_elab latex_pp_app_rules_syntax] def elab_latex_app_pp_rules : CommandElab :=
@@ -138,8 +140,9 @@ where
     let body ← `(term| fun | f, args, $pkinds => $body)
     let ppAttr ← `(Lean.Parser.Term.attrInstance|$attrKind? latex_pp_app $kind)
     let attrs := attrs?.map (·.getElems) |>.getD #[] |>.push ppAttr
-    `(command| $[$doc?:docComment]? @[$attrs,*]
-                aux_def latex_pp_rule : LatexAppPrinter := $body)
+    `(command| open Lean.Elab.Command in
+                $[$doc?:docComment]? @[$attrs,*]
+                private aux_def latex_pp_rule : LatexAppPrinter := $body)
   | _ => Elab.throwUnsupportedSyntax
 where
   isCatchAllPatt (t : Term) : Bool :=

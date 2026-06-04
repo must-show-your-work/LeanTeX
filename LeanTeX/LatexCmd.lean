@@ -15,5 +15,7 @@ elab tk:"#latex " e:term : command => do
     let e ← instantiateMVars e
     let res ← run_latexPP e {}
     -- Normalize the spaces by collapsing all strings of whitespace into a single space character.
-    let res := " ".intercalate (res |>.split Char.isWhitespace |>.filter (not ·.isEmpty))
+    let res := " ".intercalate
+      ((res.split Char.isWhitespace).toList.map (·.toString)
+        |>.filter (not ·.isEmpty))
     logInfoAt tk res
